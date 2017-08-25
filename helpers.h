@@ -18,7 +18,6 @@ T s_mod(const T& a) {assert(a>=0); return a%MOD;}
 template <typename T>
 T mod(const T& a) {return a%MOD;}
 
-// to be used with c++11 ranged-base loop
 vii neigh(int i, int j, int n, int m)
 {
   vii v;
@@ -35,7 +34,6 @@ vii neigh(int i, int j, int n, int m)
   return v;
 }
 
-// leverage c++11 ranged-base loop and lambda functions...
 template <typename Proc>
 void proc_neigh(int i, int j, int n, int m, Proc proc)
 {
@@ -152,51 +150,33 @@ struct Comp
   bool operator() (const T& a, const T& b) {return a < b;}
 };
 
-typedef int result_type;
-result_type dt [51];
-result_type compute(int a)
-{
-  // corner cases
-
-  // check dt
-  result_type& res = dt[a];
-  if (res > -1) return res;
-
-
-  // compute res
-  res=0;
-
-  return res;
-}
-
-/*
- * compute1 : # n-digit numbers s.t. the sum of the digits is sum, and no leading zeros
- * compute2 : # n-digit numbers s.t. the sum of the digits is sum, with possible leading zeros
- */
-ll dt1 [18][163];
-ll dt2 [18][163];
-ll compute1(int n, int sum)
+// # n-digit numbers s.t. the sum of the digits is sum, and no leading zeros
+ll dt_n_digits_no_leading_zero [18][163];
+ll compute_n_digits_no_leading_zero(int n, int sum)
 {
   if (sum<0||sum>162) return 0;
   if (n == 0) {if (1<=sum && sum<10) return 1; else return 0;}
-  ll& res = dt1[n][sum];
+  ll& res = dt_n_digits_no_leading_zero[n][sum];
   if (res > -1) return res;
   res = 0;
   for (int d=0; d<10; d++) {
-     res += compute1(n-1, sum-d);
+     res += compute_n_digits_no_leading_zero(n-1, sum-d);
   }
   return res;
 }
-ll compute2(int n, int sum)
+
+// # n-digit numbers s.t. the sum of the digits is sum, with possible leading zeros
+ll dt_n_digits [18][163];
+ll compute_n_digits(int n, int sum)
 {
   if (n==-1 && sum==0) return 1;
   if (sum<0||sum>162) return 0;
   if (n == 0) {if (0<=sum && sum<10) return 1; else return 0;}
-  ll& res = dt2[n][sum];
+  ll& res = dt_n_digits[n][sum];
   if (res > -1) return res;
   res = 0;
   for (int d=0; d<10; d++) {
-     res += compute2(n-1, sum-d);
+     res += compute_n_digits(n-1, sum-d);
   }
   return res;
 }
@@ -385,7 +365,7 @@ vector<vi> kmp_table(string s)
 
 // square matrix multiplication
 template <typename T, int N>
-void mamul(T (&A) [N][N], T (&B) [N][N], T (&C) [N][N], int n)
+void matmul(T (&A) [N][N], T (&B) [N][N], T (&C) [N][N], int n)
 {
   T tmp [N][N];
   ZERO(T);
@@ -413,51 +393,48 @@ int bicycle_lock(string S, string T)
 }
 
 // not tested
-vi manacher_table(string s)
-{
-  int n = s.size();
-  vi v(2*n-1);
-  int c, r, i;
-  r=c=i=0;
-  FOR(i, 2*n-1) {
-    int op = 2*c-i;
-    if((i-1)/2+v[op])>=r) {
-      c=i;
-      while(r+1<n && c-r-1 >=0 && s[r+1]==s[c-r-1]) r++;
-      v[c] = r-(c-1)/2;
-    }
-    else {
-      v[i] = v[op];
-    }
-  }
-  return v;
-}
+//vi manacher_table(string s)
+//{
+//  int n = s.size();
+//  vi v(2*n-1);
+//  int c, r, i;
+//  r=c=i=0;
+//  FOR(i, 2*n-1) {
+//    int op = 2*c-i;
+//    if((i-1)/2+v[op])>=r) {
+//      c=i;
+//      while(r+1<n && c-r-1 >=0 && s[r+1]==s[c-r-1]) r++;
+//      v[c] = r-(c-1)/2;
+//    }
+//    else {
+//      v[i] = v[op];
+//    }
+//  }
+//  return v;
+//}
 
 // not tested
-// dep [i][j] = 1 if i depends on j
-//            = 0 if j eliminated
-//            = -1 does not depend on j
-template <int M>
-vi topological_order(int dep [][M])
-{
-  int i, j;
-  vi res;
-  bool stop = false
-  while(!stop) {
-    stop = true;
-    FOR(i, M) {
-      bool ok=false;
-      FOR(j, M) if (dep[j][i] >=0) {ok = true; break;}
-      if (!ok) {
-        res.pb(i);
-        stop = false;
-        FOR(j, M) dep[j][i]=0;
-        FOR(j, M) if (dep[i][j]>0) dep[i][j]=-1;
-      }
-    }
-  }
-  return res;
-}
+//template <int M>
+//vi topological_order(int dep [][M])
+//{
+//  int i, j;
+//  vi res;
+//  bool stop = false
+//  while(!stop) {
+//    stop = true;
+//    FOR(i, M) {
+//      bool ok=false;
+//      FOR(j, M) if (dep[j][i] >=0) {ok = true; break;}
+//      if (!ok) {
+//        res.pb(i);
+//        stop = false;
+//        FOR(j, M) dep[j][i]=0;
+//        FOR(j, M) if (dep[i][j]>0) dep[i][j]=-1;
+//      }
+//    }
+//  }
+//  return res;
+//}
 
 ll euler_totient(ll n)
 {
@@ -478,7 +455,7 @@ ll euler_totient(ll n)
   return r;
 }
 
-// is string a a subsequence of string b?
+// is string a subsequence of string b?
 bool sub_sequence(string a, string b)
 {
   int i = 0;
@@ -494,7 +471,7 @@ bool sub_sequence(string a, string b)
 
 // map is an associative array: opos[ ')' ] returns '(', 
 // opos[ ']' ] is '[', ...
-bool correctBracket(string exp, map<char, char> opos)
+bool correct_brackets(string exp, map<char, char> opos)
 {
   stack<char> s;
   for (char ch: exp) {
