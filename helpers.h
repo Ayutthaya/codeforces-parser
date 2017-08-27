@@ -41,9 +41,9 @@ void proc_neigh(int i, int j, int n, int m, Proc proc)
 }
 
 template <typename InputIterator>
-InputIterator::value_type sum(InputIterator first, InputIterator last)
+typename InputIterator::value_type sum(InputIterator first, InputIterator last)
 {
-  typedef InputIterator::value_type T;
+  typedef typename InputIterator::value_type T;
   T s = 0;
   for_each(first, last, [&s] (T i) {s+=i;});
   return s;
